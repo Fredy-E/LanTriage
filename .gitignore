@@ -1,0 +1,11 @@
+# Evidence artifacts produced by browser runs (screenshots, downloaded reports)
+tests/evidence/
+test-results/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+
+# Nothing here should ever be committed as a real capture
+*.cap

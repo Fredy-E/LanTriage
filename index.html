@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LanTriage — experimental concept prototype</title>
+<meta name="description" content="LanTriage is an offline, bounded pcap/pcapng evidence viewer for DHCP, ARP and mDNS observations. Files stay on this machine; the page makes no data requests.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <div class="app-header-inner">
+    <h1><span class="logo-dot" aria-hidden="true"></span>LanTriage</h1>
+    <p id="prototype-notice" class="tagline" role="note"><strong>Experimental concept prototype — idea exploration only.</strong> This is a work-in-progress demo, not a finished or production-ready product.</p>
+    <p class="tagline">Offline, bounded <strong>pcap / pcapng</strong> evidence viewer for <strong>DHCP</strong>, <strong>ARP</strong> and <strong>mDNS</strong> observations.
+      Everything runs in this page: no server, no build step, no uploads, no telemetry. Imported data stays on this machine.</p>
+  </div>
+</header>
+
+<main id="main" class="layout">
+  <section class="panel" id="import-panel" aria-labelledby="import-heading">
+    <h2 id="import-heading">1 · Import a capture</h2>
+    <div class="import-row">
+      <label class="btn btn-primary" id="file-label" for="file-input">Choose .pcap / .pcapng file</label>
+      <input id="file-input" class="visually-hidden" type="file" accept=".pcap,.pcapng,.cap">
+      <button id="btn-sample-pcap" class="btn" type="button">Load fictional pcap sample</button>
+      <button id="btn-sample-pcapng" class="btn" type="button">Load fictional pcapng sample</button>
+    </div>
+    <p class="hint">Implemented prototype subset: classic pcap (little/big endian, micro/nanosecond timestamps) and pcapng section/interface/enhanced-packet (plus simple-packet) records with Ethernet, bounded VLAN, ARP, IPv4/UDP DHCP and mDNS. Everything else is counted as <em>not decoded</em> — never silently treated as healthy.</p>
+    <p id="import-status" class="status" role="status">No capture loaded.</p>
+    <p id="error-line" class="error" role="alert" hidden></p>
+  </section>
+
+  <section class="panel" id="summary-panel" aria-labelledby="summary-heading" hidden>
+    <h2 id="summary-heading">2 · Capture summary</h2>
+    <dl class="kv">
+      <div><dt>Source</dt><dd id="summary-source">—</dd></div>
+      <div><dt>Format</dt><dd id="summary-format">—</dd></div>
+      <div><dt>Byte order</dt><dd id="summary-endian">—</dd></div>
+      <div><dt>Packets seen</dt><dd id="summary-seen">—</dd></div>
+      <div><dt>Decoded</dt><dd id="summary-decoded">—</dd></div>
+      <div><dt>Not decoded</dt><dd id="summary-unsupported">—</dd></div>
+      <div><dt>Rejected records</dt><dd id="summary-rejected">—</dd></div>
+      <div><dt>Malformed payloads</dt><dd id="summary-malformed">—</dd></div>
+      <div><dt>Options (skipped / malformed)</dt><dd id="summary-options">—</dd></div>
+      <div><dt>Sections / interfaces</dt><dd id="summary-sections">—</dd></div>
+    </dl>
+  </section>
+
+  <section class="panel" id="coverage-panel" aria-labelledby="coverage-heading" hidden>
+    <h2 id="coverage-heading">Coverage &amp; limits</h2>
+    <p id="coverage-limited" class="coverage-note">—</p>
+    <ul id="coverage-reasons" class="plain-list"></ul>
+    <ul id="limitations-list" class="plain-list muted"></ul>
+  </section>
+
+  <section class="panel" id="filters-panel" aria-labelledby="filters-heading" hidden>
+    <h2 id="filters-heading">3 · Filter evidence</h2>
+    <fieldset class="filter-group">
+      <legend>Protocols</legend>
+      <label><input type="checkbox" id="filter-arp" checked> ARP</label>
+      <label><input type="checkbox" id="filter-dhcp" checked> DHCP</label>
+      <label><input type="checkbox" id="filter-mdns" checked> mDNS</label>
+      <label><input type="checkbox" id="filter-other" checked> Not decoded / other</label>
+    </fieldset>
+    <div class="filter-text-row">
+      <label for="filter-text">Text filter (names, addresses, codes)</label>
+      <input type="search" id="filter-text" placeholder="e.g. 192.0.2.20, discover, mdns" autocomplete="off">
+    </div>
+    <p id="filter-count" class="hint" role="status"></p>
+  </section>
+
+  <section class="panel" id="findings-panel" aria-labelledby="findings-heading" hidden>
+    <h2 id="findings-heading">4 · Qualified findings</h2>
+    <p class="hint">Findings are <em>observations with qualifiers</em>, not proof. Each one lists its evidence references and the benign explanations that can look identical.</p>
+    <div id="findings-list" class="findings"></div>
+  </section>
+
+  <section class="panel" id="observations-panel" aria-labelledby="observations-heading" hidden>
+    <h2 id="observations-heading">5 · Observations</h2>
+    <ol id="observations-list" class="observations"></ol>
+  </section>
+
+  <section class="panel" id="packets-panel" aria-labelledby="packets-heading" hidden>
+    <h2 id="packets-heading">6 · Packet evidence</h2>
+    <div class="table-wrap">
+      <table id="packets-table">
+        <caption>Every parsed record with its file offset, timestamp, interface/VLAN context and status.</caption>
+        <thead>
+          <tr><th scope="col">#</th><th scope="col">Offset</th><th scope="col">Timestamp</th><th scope="col">Iface</th><th scope="col">VLAN</th><th scope="col">Length</th><th scope="col">Protocol</th><th scope="col">Status</th></tr>
+        </thead>
+        <tbody id="packets-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="warnings-panel" aria-labelledby="warnings-heading" hidden>
+    <h2 id="warnings-heading">7 · Warnings</h2>
+    <ul id="warnings-list" class="warnings"></ul>
+  </section>
+
+  <section class="panel" id="export-panel" aria-labelledby="export-heading">
+    <h2 id="export-heading">8 · Export evidence reports</h2>
+    <p class="hint">Reports are standalone files: the HTML report is script-free and self-contained, the JSON report is plain JSON. Raw packet payloads are never included.</p>
+    <label class="opt-in"><input type="checkbox" id="opt-identifiers"> Include raw identifiers (MAC/IP/host/service/interface/file names) in exports — opt-in, default is redacted ordinals</label>
+    <div class="import-row">
+      <button id="btn-export-json" class="btn btn-primary" type="button" disabled>Download JSON report</button>
+      <button id="btn-export-html" class="btn btn-primary" type="button" disabled>Download HTML report</button>
+    </div>
+    <p id="export-status" class="hint" role="status"></p>
+  </section>
+</main>
+
+<footer class="app-footer">
+  <p>LanTriage is a bounded local analysis tool for pcap/pcapng evidence. It is not a Wireshark replacement and it cannot certify network health: a capture only shows traffic that reached the capture point.</p>
+  <p class="muted">Samples are self-authored fictional byte sequences (<code>aa:00:…</code> MACs, <code>192.0.2.x</code> addresses), never real captures. No file is stored anywhere; imports live only in this page's memory.</p>
+</footer>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

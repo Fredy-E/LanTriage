@@ -1,0 +1,214 @@
+{
+  "generatedBy": "tests/fixtures.cjs",
+  "synthetic": true,
+  "files": [
+    {
+      "name": "synthetic-lan-le-us.pcap",
+      "bytes": 2075,
+      "sha256": "6176583ba1365f3a2b261bb3621b1fa0958ddd5b9d263beeaf643c8dd00287c2",
+      "packetOffsets": [
+        24,
+        82,
+        140,
+        476,
+        796,
+        1110,
+        1424,
+        1523,
+        1638,
+        1696,
+        1754,
+        1816,
+        1891,
+        1977,
+        2017
+      ]
+    },
+    {
+      "name": "synthetic-lan-be-us.pcap",
+      "bytes": 905,
+      "sha256": "498a5913647faf407ddcab35691f088165790e291b065ee0d0d65194d3224b50",
+      "packetOffsets": [
+        24,
+        82,
+        140,
+        476,
+        790
+      ]
+    },
+    {
+      "name": "synthetic-lan-le-ns.pcap",
+      "bytes": 181,
+      "sha256": "35ac524ea9d0cf6bf5dd017f3e7a7c1a571d274a72c6e27bab8f9323f5da77e4",
+      "packetOffsets": [
+        24,
+        82
+      ]
+    },
+    {
+      "name": "synthetic-multi-section.pcapng",
+      "bytes": 1040,
+      "sha256": "7628f6135f6294fb795f26d5ad43db1418fabeee0f7e788a133dd58335c29ea3",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-magic.pcap",
+      "bytes": 82,
+      "sha256": "4cc1ad2a788009314c7ab3e2bfddabf22ce079ef99492232bc1ad6aee5a4616b",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-version.pcap",
+      "bytes": 82,
+      "sha256": "efa07cedd69eb6bcee93dbda3ca0d79a0a7365fe1f9804ae6f1236aae34be5a7",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-snaplen.pcap",
+      "bytes": 82,
+      "sha256": "42cde93ac21b3459762e452bfe0455726b60023656e598991812cdb6ff94707f",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-incl-gt-orig.pcap",
+      "bytes": 82,
+      "sha256": "b702267992ae7d89676c06e8203bbc7b159a8bf66c4b04c5acf9141b1fe0820f",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-bad-truncated-final.pcap",
+      "bytes": 60,
+      "sha256": "88c450fb5c0ec0b05cc533d4753db8271b51a338d88fb8665145bccf3f729de0",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-no-shb.pcapng",
+      "bytes": 104,
+      "sha256": "ac5f0cb41ea53ec5fbeed22ff35c460f676a92bf38c4c8625375a405168e7d15",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-bom.pcapng",
+      "bytes": 28,
+      "sha256": "6477df63306504aecf6130773bf8d605b556a1858bc83520c1c4d5cf71eb48a9",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-blocklen.pcapng",
+      "bytes": 56,
+      "sha256": "dc19d4439a543cee8b701338888184266df83239c0e111c007664cd22930b54a",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-iface.pcapng",
+      "bytes": 136,
+      "sha256": "38a5a525b3beaa289b288b5ba40a48c0ab0be263a1ee6be170c279bddfc5c831",
+      "packetOffsets": []
+    },
+    {
+      "name": "synthetic-bad-dhcp-option.pcap",
+      "bytes": 330,
+      "sha256": "faa96abaf497c713b4219b6e23c67da8b76008e9f80c08c64a1868bd0d532ea3",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-bad-dhcp-cookie.pcap",
+      "bytes": 318,
+      "sha256": "8b154e8745c9d5ba4feb20cf0cb7181521105c89e24459e9b18b7f16b63f5a64",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-bad-dns-loop.pcap",
+      "bytes": 110,
+      "sha256": "964fae4ff8885d8d31d96385a4c52c829c0d214310376f15f375b6d1bb649874",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-bad-dns-pointer.pcap",
+      "bytes": 110,
+      "sha256": "0929c7be1fd64f1f56623dbcc72ed4efd6ceefbc9c20bfc96de7956ab9753495",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-bad-fragment.pcap",
+      "bytes": 86,
+      "sha256": "cf28257f8421e00ab2728f04b29e489e5965109387643484224397c651a87b23",
+      "packetOffsets": [
+        24
+      ]
+    },
+    {
+      "name": "synthetic-prototype-names.pcap",
+      "bytes": 533,
+      "sha256": "10614cdb607398c35f2bf2ea9028916306d191251279ad93415671f4c86b5eae",
+      "packetOffsets": [
+        24,
+        115,
+        430
+      ]
+    },
+    {
+      "name": "synthetic-counter-vlan-split.pcap",
+      "bytes": 148,
+      "sha256": "eea2768bfe0e1c4ccae63aba5ae85c05d6dc2c1a55cc4ee8d87e8c216cc0fbb1",
+      "packetOffsets": [
+        24,
+        86
+      ]
+    },
+    {
+      "name": "synthetic-counter-probe-only.pcap",
+      "bytes": 140,
+      "sha256": "7654cdabd73b5004ec42820b3500eeea7a7531d3601f2c691eb4f3b12ff8634a",
+      "packetOffsets": [
+        24,
+        82
+      ]
+    },
+    {
+      "name": "synthetic-counter-transition.pcap",
+      "bytes": 140,
+      "sha256": "b5bfa37bbbf1d291d4e778008cbf0c97afe11d534d46c8f7e2e828b68e16ad4f",
+      "packetOffsets": [
+        24,
+        82
+      ]
+    },
+    {
+      "name": "synthetic-counter-dhcp-duplicate.pcap",
+      "bytes": 1292,
+      "sha256": "09990ee37aaae1db20caeaf43457c770bcc3802e8b301b6ae5a49c95600691e1",
+      "packetOffsets": [
+        24,
+        344,
+        664,
+        978
+      ]
+    },
+    {
+      "name": "synthetic-counter-dhcp-retransmit.pcap",
+      "bytes": 664,
+      "sha256": "2cf15619ccd65b3d5559c9353fcb9d835584d40d8e2830219d716788a1fa14dd",
+      "packetOffsets": [
+        24,
+        344
+      ]
+    },
+    {
+      "name": "synthetic-counter-multi-section.pcapng",
+      "bytes": 272,
+      "sha256": "b71e4fa24c505e8e06571d37f94a044bb34f48a1b75159449269fe43bbd5f118",
+      "packetOffsets": []
+    }
+  ]
+}
