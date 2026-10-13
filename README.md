@@ -141,6 +141,17 @@ docs/       formats.md (exact subset + citations) · verification.md (measured r
 
 ## Status & license
 
-Bounded first release, built and verified locally on 2026-10-11. MIT (`LICENSE`).
+Experimental concept prototype — idea exploration only, not a finished or production-ready product. MIT (`LICENSE`).
 The samples, fixtures and screenshots in this repository are fictional synthetic
 data, never real captures.
+
+## Verify (default)
+
+Full default verification (unit + helper + real-Chrome browser + workbench UI regression):
+
+```sh
+npm run verify
+# = node --test tests/core.test.cjs tests/cdp-helper.test.cjs && node tests/browser.cjs && node tests/ui-workbench.cjs
+```
+
+Browser suites need real Chrome and Node 26+ (built-in WebSocket); they own a fresh headless profile per run. Artifacts default to `tests/evidence/`; set `LANTRIAGE_EVIDENCE` to redirect.

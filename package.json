@@ -1,6 +1,6 @@
 {
   "name": "lantriage",
-  "version": "0.1.0",
+  "version": "0.2.0-preview.1",
   "private": true,
   "license": "MIT",
   "description": "Offline, bounded pcap/pcapng DHCP/ARP/mDNS evidence viewer. No dependencies, no build step, no network.",
@@ -9,6 +9,8 @@
   },
   "scripts": {
     "test": "node --test tests/core.test.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs",
+    "verify": "node --test tests/core.test.cjs tests/cdp-helper.test.cjs && node tests/browser.cjs && node tests/ui-workbench.cjs",
+    "test:ui": "node tests/ui-workbench.cjs"
   }
 }

@@ -21,7 +21,7 @@
   var el = function (id) { return document.getElementById(id); };
   var nodes = {
     fileInput: el('file-input'), samplePcap: el('btn-sample-pcap'), samplePcapng: el('btn-sample-pcapng'),
-    status: el('import-status'), error: el('error-line'),
+    status: el('import-status'), error: el('error-line'), workbenchState: el('workbench-state'),
     summaryPanel: el('summary-panel'), coveragePanel: el('coverage-panel'), filtersPanel: el('filters-panel'),
     findingsPanel: el('findings-panel'), observationsPanel: el('observations-panel'),
     packetsPanel: el('packets-panel'), warningsPanel: el('warnings-panel'),
@@ -61,17 +61,78 @@
   function formatError(error) {
     return (error && error.code ? error.code + ': ' : '') + (error && error.message ? error.message : 'unknown error');
   }
-  function setStatus(text) { nodes.status.textContent = text; }
+  function setStatus(text) { nodes.status.textContent = text; syncWorkbench(); }
+  function clearStatus() { while (nodes.status.firstChild) nodes.status.removeChild(nodes.status.firstChild); }
+  function appendStatusText(text) { nodes.status.appendChild(document.createTextNode(text)); }
+  function appendStatusFile(name) {
+    var bdi = document.createElement('bdi');
+    bdi.textContent = String(name);
+    nodes.status.appendChild(bdi);
+  }
+  function setStatusReading(label) {
+    clearStatus();
+    appendStatusText('Reading ');
+    appendStatusFile(label);
+    appendStatusText(' \u2026');
+    syncWorkbench();
+  }
+  function setStatusLoaded(sourceFile, counts) {
+    clearStatus();
+    appendStatusText('Loaded ');
+    appendStatusFile(sourceFile);
+    appendStatusText(' \u2014 ' + counts.seen + ' packet(s) seen, ' + counts.decoded + ' decoded, ' +
+      counts.unsupported + ' not decoded, ' + counts.rejected + ' rejected, ' + counts.truncated +
+      ' truncated. Analysis complete; exports are current for this capture.');
+    syncWorkbench();
+  }
+  function setStatusFailedRetain(label, retainedFile) {
+    clearStatus();
+    appendStatusText('Import of ');
+    appendStatusFile(label);
+    appendStatusText(' failed; still showing ');
+    appendStatusFile(retainedFile);
+    appendStatusText('. Exports still describe the displayed capture.');
+    syncWorkbench();
+  }
+  function setStatusFailedEmpty(label) {
+    clearStatus();
+    appendStatusText('Import of ');
+    appendStatusFile(label);
+    appendStatusText(' failed; nothing is loaded.');
+    syncWorkbench();
+  }
   function showError(error) {
     nodes.error.hidden = false;
     nodes.error.textContent = formatError(error);
+    syncWorkbench();
   }
   function clearError() { nodes.error.hidden = true; nodes.error.textContent = ''; }
+
+  // Presentation-only workbench pill: mirrors busy/model/error without
+  // changing the honest #import-status / #error-line text or semantics.
+  function syncWorkbench() {
+    try {
+      if (nodes.workbenchState) {
+        var pillState = 'empty';
+        var pillText = 'Empty — no capture';
+        if (state.busy) { pillState = 'working'; pillText = 'Working — reading capture…'; }
+        else if (nodes.error && !nodes.error.hidden) {
+          pillState = 'error';
+          pillText = state.model ? 'Error — still showing previous capture' : 'Error — nothing loaded';
+        }
+        else if (state.model) { pillState = 'ready'; pillText = 'Ready — capture loaded'; }
+        nodes.workbenchState.setAttribute('data-state', pillState);
+        nodes.workbenchState.textContent = pillText;
+      }
+      if (document.body) document.body.setAttribute('data-loaded', state.model ? 'true' : 'false');
+    } catch (error) { /* pill is decorative; imports never depend on it */ }
+  }
 
   function updateExportButtons() {
     var enabled = !state.busy && !!state.model;
     nodes.exportJson.disabled = !enabled;
     nodes.exportHtml.disabled = !enabled;
+    syncWorkbench();
   }
 
   // -------------------------------------------------------------------------
@@ -82,7 +143,7 @@
     state.busy = true;
     updateExportButtons();
     clearError();
-    setStatus('Reading ' + label + ' …');
+    setStatusReading(label);
     readFn().then(function (bytes) {
       if (token !== state.importToken) return; // a newer import superseded this one
       finishImport(token, bytes, sourceFile);
@@ -105,8 +166,7 @@
     updateExportButtons();
     render();
     var c = parsed.value.counts;
-    setStatus('Loaded ' + sourceFile + ' — ' + c.seen + ' packet(s) seen, ' + c.decoded + ' decoded, ' + c.unsupported +
-      ' not decoded, ' + c.rejected + ' rejected, ' + c.truncated + ' truncated. Analysis complete; exports are current for this capture.');
+    setStatusLoaded(sourceFile, c);
     nodes.exportStatus.textContent = '';
   }
 
@@ -115,9 +175,9 @@
     updateExportButtons();
     showError(error);
     if (state.model) {
-      setStatus('Import of ' + label + ' failed; still showing ' + state.sourceFile + '. Exports still describe the displayed capture.');
+      setStatusFailedRetain(label, state.sourceFile);
     } else {
-      setStatus('Import of ' + label + ' failed; nothing is loaded.');
+      setStatusFailedEmpty(label);
     }
   }
 
@@ -157,6 +217,7 @@
     renderFindings(model);
     renderWarnings(model);
     renderFilters();
+    syncWorkbench();
   }
 
   function renderSummary(model) {
@@ -190,7 +251,7 @@
   function renderFindings(model) {
     clearChildren(nodes.findings);
     if (!model.findings.length) {
-      addText(nodes.findings, 'p', 'No possible-conflict or transition candidates were identified from the supported subset of this capture. That is not evidence that the network is healthy.', 'hint');
+      addText(nodes.findings, 'p', 'No possible-conflict or transition candidates were identified from the supported subset of this capture. That is not evidence that the network is healthy.', 'hint empty-state');
       return;
     }
     model.findings.forEach(function (finding) {

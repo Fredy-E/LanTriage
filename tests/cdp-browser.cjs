@@ -78,9 +78,21 @@ async function launch(options = {}) {
       await Promise.race([new Promise(resolve => child.once('exit', resolve)), delay(2500)]);
       if (child.exitCode === null && child.signalCode === null) {
         if (process.platform === 'win32') {
-          const killer = spawn(path.join(process.env.SystemRoot || 'C:/Windows', 'System32', 'taskkill.exe'),
-            ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
-          await Promise.race([new Promise(resolve => { killer.once('exit', resolve); killer.once('error', resolve); }), delay(3000)]);
+          // Re-check the current command line before PID-based cleanup.
+          // A recorded launch PID alone must not authorize killing a reused PID.
+          const expected = ('--user-data-dir=' + profile).replace(/'/g, "''");
+          const script = '$p=Get-CimInstance Win32_Process -Filter "ProcessId=' + child.pid + '"; ' +
+            'if($p -and $p.CommandLine -and $p.CommandLine.Contains(\'' + expected + '\')) {exit 0} else {exit 2}';
+          const proof = spawn(path.join(process.env.SystemRoot || 'C:/Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
+            ['-NoProfile', '-NonInteractive', '-Command', script], { windowsHide: true, stdio: 'ignore' });
+          const owned = await Promise.race([new Promise(resolve => {
+            proof.once('exit', code => resolve(code === 0)); proof.once('error', () => resolve(false));
+          }), delay(4000).then(() => false)]);
+          if (owned) {
+            const killer = spawn(path.join(process.env.SystemRoot || 'C:/Windows', 'System32', 'taskkill.exe'),
+              ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
+            await Promise.race([new Promise(resolve => { killer.once('exit', resolve); killer.once('error', resolve); }), delay(3000)]);
+          } else console.warn('Skipped PID cleanup: current profile ownership was not proven.');
         } else child.kill('SIGKILL');
       }
     }
@@ -97,7 +109,12 @@ async function launch(options = {}) {
       // On elevated Windows Chrome can relaunch and let its launcher exit 0.
       if (child.exitCode !== null && child.exitCode !== 0) throw new Error('Chrome exited: ' + child.exitCode + '\n' + diagnostics);
       try { return await fs.readFile(path.join(profile, 'DevToolsActivePort'), 'utf8'); }
-      catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+      catch (error) {
+        // Chrome can briefly hold its own port file while writing it on Windows.
+        // Retry only these transient startup states within the existing deadline.
+        if (error.code === 'ENOENT' || error.code === 'EBUSY') return null;
+        throw error;
+      }
     }, 'owned Chrome debugger', 20000);
     const [port, endpoint] = portInfo.trim().split(/\r?\n/);
     socket = new WebSocket('ws://127.0.0.1:' + port + endpoint);
